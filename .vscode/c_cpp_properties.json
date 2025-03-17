@@ -1,0 +1,20 @@
+{
+    "configurations": [
+        {
+            "name": "Linux",
+            "includePath": [
+                "${workspaceFolder}/**",
+                "${workspaceFolder}/custom_headers/**",
+                "${VCPKG_ROOT}/installed/x64-linux/include/**",
+                "${VCPKG_ROOT}/installed/x64-linux/include/gsl/**",
+                "/usr/include/python3.13"
+            ],
+            "defines": [],
+            "compilerPath": "/usr/bin/g++",
+            "cStandard": "c17",
+            "cppStandard": "c++20",
+            "intelliSenseMode": "linux-gcc-x64"
+        }
+    ],
+    "version": 4
+}
