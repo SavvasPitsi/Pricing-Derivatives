@@ -2,9 +2,10 @@
 #define my_random_h
 
 #include <random>
+//#include <thread>
 
 
-std::mt19937 gen;
+thread_local std::mt19937 gen;
 
 void initializeRNG(int seed = 0){
 
@@ -21,13 +22,13 @@ void initializeRNG(int seed = 0){
 
 double randomU()
 {
-    static std::uniform_real_distribution<double> distrUni(0, 1); // This is created only once
+    static thread_local std::uniform_real_distribution<double> distrUni(0, 1); // This is created only once
     return distrUni(gen);
 };
 
 double randomN()
 {
-    static std::normal_distribution<double> distrNorm(0, 1);
+    static thread_local std::normal_distribution<double> distrNorm(0, 1);
     return distrNorm(gen);
 }
 

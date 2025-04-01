@@ -1,7 +1,7 @@
 #include <iostream>
-// #include <memory>
-// #include <random>
 #include <vector>
+#include <chrono>
+#include <thread>
 #include <gsl_statistics_double.h>
 
 #include <my_processes.h>
@@ -14,29 +14,52 @@ using std::endl;
 using std::uniform_real_distribution;
 using std::normal_distribution;
 using std::vector;
+using std::thread;
 
 
 int main()
 {
 
-    initializeRNG(0); // seed 0 to get a random seed every time
+    initializeRNG(0); // seed 0 to get a random device seed
 
-    vector<double> sim1, sim2;
+    int sims = 1000;
+
+    
+    auto startTime = std::chrono::high_resolution_clock::now();
 
     BrownianMotion R1(0.04, 0.01);
-    sim1 = R1.run(1000);
+    R1.setLength(1100);
+    thread t1(&BrownianMotion::simulate, &R1, sims);
+   
 
     GBrownianMotion S1(0.04, 0.01);
+    S1.setLength(1100);
     S1.setStart(100);
-    sim2 = S1.run(1000);
+    thread t2(&GBrownianMotion::simulate, &S1, sims);
+
+    t1.join();
+    t2.join();
+
+    auto endTime = std::chrono::high_resolution_clock::now();
 
     plt::figure(1);
-    plt::plot(sim1);
+    for(auto path : R1.getPaths())
+    {
+        plt::plot(path);
+    }    
     plt::title("Brownian motion");
 
+
     plt::figure(2);
-    plt::plot(sim2);
+    for(auto path : S1.getPaths())
+    {
+        plt::plot(path);
+    }    
     plt::title("Geometric brownian motion");
+
+    
+    auto simTime = std::chrono::duration_cast<std::chrono::milliseconds>(endTime - startTime);
+    cout << "Simulation time: " << simTime.count() << " ms\n";
 
     plt::show();
  
