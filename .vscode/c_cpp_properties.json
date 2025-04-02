@@ -7,6 +7,7 @@
                 "${workspaceFolder}/custom_headers/**",
                 "${VCPKG_ROOT}/installed/x64-linux/include/**",
                 "${VCPKG_ROOT}/installed/x64-linux/include/gsl/**",
+                "${VCPKG_ROOT}/installed/x64-linux/lib/",
                 "/usr/include/python3.13"
             ],
             "defines": [],
