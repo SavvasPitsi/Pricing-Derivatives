@@ -68,11 +68,12 @@ int main()
     auto simTime = std::chrono::duration_cast<std::chrono::milliseconds>(endTime - startTime);
     cout << "Simulation time: " << simTime.count() << " ms\n";
 
-    YieldCurve y1("yields.csv", false);
+    YieldCurve y1("yields.csv", true); 
+    // Bool choses whether to extrapolate to 0 maturities.
 
     vector<double> interp, xs;
 
-    xs = linspace(1.0/12 + 1e-4, 30 - 1e-4, 10000);
+    xs = linspace(0, 30, 10000);
     interp = y1.interpolation(xs);
 
     plt::figure(3);
@@ -81,6 +82,8 @@ int main()
     plt::xlabel("Years");
     plt::ylabel("Yield to maturity");
     plt::title("Yield curve as of " + y1.getDate());
+
+    cout << "Yield curve integral: " << y1.integrate(33, -2) << endl;
     
 
 

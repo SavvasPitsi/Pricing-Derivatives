@@ -22,6 +22,7 @@ class YieldCurve
 
         vector<double> interpolation(vector<double> x);
         double interpolation(double x);
+        double integrate(double a, double b);
 
         string getDate(void);
         vector<double> getYields(void);
@@ -35,6 +36,7 @@ class YieldCurve
     private:
         void bootstrapCurve(void);
         void readYields(void);
+        double lineInt(double a, double b);
         std::unordered_map<string, double> translMap=
         {
             {
@@ -129,7 +131,7 @@ void YieldCurve::readYields(void)
             maturitiesStr.push_back(value);
         }
         
-        if(extend) { maturitiesStr.insert(maturitiesStr.begin(), "0 Mo"); };
+        
     }
 
     while(getline(file, line))  // keep on reading lines from the file stream
@@ -151,7 +153,7 @@ void YieldCurve::readYields(void)
             
         };
 
-        if(extend) { row.insert(row.begin(), 0.0); };
+        
 
         yields.push_back(row);
         // this goes over all lines but it actually only stores the last date
@@ -183,29 +185,62 @@ void YieldCurve::bootstrapCurve()
     
 };
 
+
+double YieldCurve::interpolation(double x)
+{    
+    if( (x <= maxX) && (x >= minX) )
+        return gsl_spline_eval(spline, x, acc);
+    else if( (x >= 0) && (x < minX) && extend)
+        // explicit linear interpolation to 0
+        return x * ( yields.back().front() * 12 ); 
+    else
+        return 0;
+};
+
 vector<double> YieldCurve::interpolation(vector<double> x)
 {
     vector<double> result;
 
     for(double xi : x)
     {
-        // evaluate the interpolation, saving the result to the accelerator
-        if( (xi < maxX) && (xi > minX) )
-            result.push_back( gsl_spline_eval(spline, xi, acc) );
-        else
-            result.push_back(0);
+        result.push_back( interpolation(xi) );
     }
 
     return result;
 };
 
-double YieldCurve::interpolation(double x)
-{    
-    if( (x < maxX) && (x > minX) )
-        return gsl_spline_eval(spline, x, acc);
-    else
-        return 0;
+double YieldCurve::lineInt(double x, double y)
+{
+    // explicit integral calculation
+    return yields.back().front() * 12 * 0.5 * (y*y - x*x);
 };
+
+double YieldCurve::integrate(double a, double b)
+{
+    // return gsl_spline_eval_integ(spline, 1, 2, acc);
+
+    // what if not extend?
+    if(b == a) { return 0; };
+    if(b < a) { return -integrate(b, a); };
+    if(a < 0) { return integrate(0, b); };
+    if(b > maxX) { return integrate(a, maxX); };
+    
+    if(extend)
+    {
+        if(a < minX && b <= minX) { return lineInt(a, b); };
+
+        if(a < minX && b > minX) { return lineInt(a, minX) + integrate(minX, b); };
+
+        if(a >= minX && b <= maxX) {  };
+    }
+    else
+    {
+        if(a < minX) { return integrate(minX, b); };
+    }
+    
+    return gsl_spline_eval_integ(spline, a, b, acc);
+};
+
 
 string YieldCurve::getDate() { return date; };
 
