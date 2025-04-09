@@ -83,10 +83,36 @@ int main()
     plt::ylabel("Yield to maturity");
     plt::title("Yield curve as of " + y1.getDate());
 
-    cout << "Yield curve integral: " << y1.integrate(33, -2) << endl;
+    cout << "Yield curve integral: " << y1.integrate(0, 30) << endl;
     
 
+    vector<double> starts = linspace(-1, 20, 1000), ends = linspace(-2, 33, 1000);
+    vector<vector<double>> integrals, x, y;
 
+
+    for(double s : starts)
+    {
+        vector<double> x_row, y_row, z_row;
+        for(double e : ends)
+        {
+            x_row.push_back(s);
+            y_row.push_back(e);
+            z_row.push_back(y1.integrate(s, e));
+        }
+        x.push_back(x_row);
+        y.push_back(y_row);
+        integrals.push_back(z_row);
+    }
+
+    plt::figure(4);
+    plt::contour(x,y, integrals);
+    plt::xlabel("starts");
+    plt::ylabel("ends");
+    plt::legend();
+    
+    
+
+    
     plt::show();
  
 

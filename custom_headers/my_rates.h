@@ -217,9 +217,6 @@ double YieldCurve::lineInt(double x, double y)
 
 double YieldCurve::integrate(double a, double b)
 {
-    // return gsl_spline_eval_integ(spline, 1, 2, acc);
-
-    // what if not extend?
     if(b == a) { return 0; };
     if(b < a) { return -integrate(b, a); };
     if(a < 0) { return integrate(0, b); };
